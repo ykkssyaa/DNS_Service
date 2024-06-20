@@ -73,8 +73,26 @@ func (s Server) AddDnsServer(ctx context.Context, dns *gen.DNS) (*gen.Empty, err
 }
 
 func (s Server) RemoveDnsServer(ctx context.Context, dns *gen.DNS) (*gen.Empty, error) {
-	//TODO implement me
-	panic("implement me")
+	content, err := os.ReadFile(consts.ResolvConfPath)
+	if err != nil {
+		return nil, err
+	}
+
+	lines := strings.Split(string(content), "\n")
+	var newLines []string
+
+	for _, line := range lines {
+		if !strings.Contains(line, dns.Address) {
+			newLines = append(newLines, line)
+		}
+	}
+
+	err = os.WriteFile(consts.ResolvConfPath, []byte(strings.Join(newLines, "\n")), 0644)
+	if err != nil {
+		return nil, err
+	}
+
+	return &gen.Empty{}, nil
 }
 
 func (s Server) mustEmbedUnimplementedDnsServiceServer() {
