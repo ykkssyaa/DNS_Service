@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package dns_service;
+option go_package = "github.com/ykkssyaa/DNS_Service/server/internal/gen";
+
+import "google/api/annotations.proto";
+
+service DnsService{
+  rpc GetHostname(Empty) returns (Hostname){
+    option (google.api.http) = {
+      get: "/hostname"
+    };
+  };
+  rpc SetHostname(Hostname) returns (Empty){
+    option (google.api.http) = {
+      post: "/hostname"
+      body: "*"
+    };
+  };
+  rpc ListDnsServers (Empty) returns (DnsListResponse){
+    option (google.api.http) = {
+      get: "/dns"
+    };
+  };
+  rpc AddDnsServer (DNS) returns (Empty){
+    option (google.api.http) = {
+      post: "/dns"
+      body: "*"
+    };
+  };
+  rpc RemoveDnsServer (DNS) returns (Empty){
+    option (google.api.http) = {
+      delete: "/dns/{address}"
+    };
+  };
+}
+
+message Hostname{
+  string name = 1;
+}
+
+message DNS{
+  string address = 1;
+}
+
+message DnsListResponse {
+  repeated string addresses = 1;
+}
+
+message Empty {
+
+}
