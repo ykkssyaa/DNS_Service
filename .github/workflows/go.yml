@@ -22,8 +22,8 @@ jobs:
         go-version: '1.21'
 
     - name: Build-Server
-      run: (go build -v .server/cmd/main.go )
+      run: (go build -v ./server/cmd/main.go )
 
     - name: Build-Client
-      run: (go build -v .client/main.go )
+      run: (go build -v ./client/main.go )
 
