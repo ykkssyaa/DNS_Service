@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/ykkssyaa/DNS_Service/server/internal/gen"
+	"github.com/ykkssyaa/DNS_Service/server/gen"
 	"github.com/ykkssyaa/DNS_Service/server/internal/server"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

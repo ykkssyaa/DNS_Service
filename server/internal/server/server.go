@@ -3,8 +3,8 @@ package server
 import (
 	"context"
 	"fmt"
+	"github.com/ykkssyaa/DNS_Service/server/gen"
 	"github.com/ykkssyaa/DNS_Service/server/internal/consts"
-	"github.com/ykkssyaa/DNS_Service/server/internal/gen"
 	"os"
 	"os/exec"
 	"strings"
