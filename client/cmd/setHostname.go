@@ -20,20 +20,27 @@ var setHostnameCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		conn, err := grpc.NewClient(consts.AddrGRPC, grpc.WithTransportCredentials(insecure.NewCredentials()))
+
 		if err != nil {
 			log.Fatalf("did not connect: %v", err)
 		}
+
 		defer conn.Close()
 		c := gen.NewDnsServiceClient(conn)
 
-		res, err := c.ListDnsServers(context.Background(), &gen.Empty{})
+		var hostname string
+		if len(args) > 0 {
+			hostname = args[0]
+		} else {
+			log.Fatalln("there are not hostname in args")
+		}
+
+		_, err = c.SetHostname(context.Background(), &gen.Hostname{Name: hostname})
 		if err != nil {
 			log.Fatalf("could not list DNS servers: %v", err)
 		}
 
-		for _, addr := range res.Addresses {
-			fmt.Println(addr)
-		}
+		fmt.Println("Hostname set to " + hostname)
 	},
 }
 

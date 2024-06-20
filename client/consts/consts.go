@@ -1,3 +1,3 @@
 package consts
 
-const AddrGRPC = "localhost:50051"
+const AddrGRPC = "localhost:12201"

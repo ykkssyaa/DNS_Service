@@ -1,9 +1,14 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
-
 	"github.com/spf13/cobra"
+	"github.com/ykkssyaa/DNS_Service/client/consts"
+	"github.com/ykkssyaa/DNS_Service/server/gen"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"log"
 )
 
 // hostnameCmd represents the hostname command
@@ -12,20 +17,23 @@ var hostnameCmd = &cobra.Command{
 	Short: "Get the hostname of a machine",
 	Long:  `Get the hostname of a machine`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("hostname called")
+
+		conn, err := grpc.NewClient(consts.AddrGRPC, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		if err != nil {
+			log.Fatalf("did not connect: %v", err)
+		}
+		defer conn.Close()
+		c := gen.NewDnsServiceClient(conn)
+
+		res, err := c.GetHostname(context.Background(), &gen.Empty{})
+		if err != nil {
+			log.Fatalf("could not list DNS servers: %v", err)
+		}
+
+		fmt.Println(res.Name)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(hostnameCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// hostnameCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// hostnameCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
