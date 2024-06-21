@@ -2,9 +2,11 @@ package server
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/ykkssyaa/DNS_Service/server/gen"
 	"github.com/ykkssyaa/DNS_Service/server/internal/consts"
+	"net"
 	"os"
 	"os/exec"
 	"strings"
@@ -59,6 +61,12 @@ func (s Server) ListDnsServers(ctx context.Context, empty *gen.Empty) (*gen.DnsL
 }
 
 func (s Server) AddDnsServer(ctx context.Context, dns *gen.DNS) (*gen.Empty, error) {
+
+	ip := net.ParseIP(dns.Address)
+	if ip == nil {
+		return nil, errors.New("invalid IP address")
+	}
+
 	f, err := os.OpenFile(consts.ResolvConfPath, os.O_APPEND|os.O_WRONLY, 0600)
 	if err != nil {
 		return nil, err
@@ -73,6 +81,12 @@ func (s Server) AddDnsServer(ctx context.Context, dns *gen.DNS) (*gen.Empty, err
 }
 
 func (s Server) RemoveDnsServer(ctx context.Context, dns *gen.DNS) (*gen.Empty, error) {
+
+	ip := net.ParseIP(dns.Address)
+	if ip == nil {
+		return nil, errors.New("invalid IP address")
+	}
+
 	content, err := os.ReadFile(consts.ResolvConfPath)
 	if err != nil {
 		return nil, err
