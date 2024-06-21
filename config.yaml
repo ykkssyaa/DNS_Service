@@ -1,0 +1,5 @@
+ports:
+  grpc: "12201"
+  rest: "8081"
+
+dns_resolv_path: "/etc/resolv.conf"

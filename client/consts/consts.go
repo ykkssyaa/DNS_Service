@@ -1,3 +1,4 @@
 package consts
 
-const AddrGRPC = "localhost:12201"
+const AddrGRPC = "localhost:"
+const ConfigFilePath = "config.yaml"

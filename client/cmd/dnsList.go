@@ -6,6 +6,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github.com/spf13/viper"
 	"github.com/ykkssyaa/DNS_Service/client/consts"
 	"github.com/ykkssyaa/DNS_Service/server/gen"
 	"google.golang.org/grpc"
@@ -22,7 +23,7 @@ var dnsListCmd = &cobra.Command{
 	Long:  `Get a dns list of a machine`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		conn, err := grpc.NewClient(consts.AddrGRPC, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		conn, err := grpc.NewClient(consts.AddrGRPC+viper.GetString("ports.grpc"), grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
 			log.Fatalf("did not connect: %v", err)
 		}
