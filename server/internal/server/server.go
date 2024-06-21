@@ -40,21 +40,10 @@ func (s Server) SetHostname(ctx context.Context, hostname *gen.Hostname) (*gen.E
 }
 
 func (s Server) ListDnsServers(ctx context.Context, empty *gen.Empty) (*gen.DnsListResponse, error) {
-	content, err := os.ReadFile(consts.ResolvConfPath)
+
+	addresses, err := getDnsList()
 	if err != nil {
 		return nil, err
-	}
-
-	lines := strings.Split(string(content), "\n")
-	var addresses []string
-
-	for _, line := range lines {
-		if strings.HasPrefix(line, "nameserver") {
-			parts := strings.Fields(line)
-			if len(parts) > 1 {
-				addresses = append(addresses, parts[1])
-			}
-		}
 	}
 
 	return &gen.DnsListResponse{Addresses: addresses}, nil
@@ -65,6 +54,15 @@ func (s Server) AddDnsServer(ctx context.Context, dns *gen.DNS) (*gen.Empty, err
 	ip := net.ParseIP(dns.Address)
 	if ip == nil {
 		return nil, errors.New("invalid IP address")
+	}
+
+	addresses, err := getDnsList()
+	if err != nil {
+		return nil, err
+	}
+
+	if findInSlice(dns.Address, addresses) {
+		return nil, errors.New("DNS server already exists")
 	}
 
 	f, err := os.OpenFile(consts.ResolvConfPath, os.O_APPEND|os.O_WRONLY, 0600)
@@ -85,6 +83,15 @@ func (s Server) RemoveDnsServer(ctx context.Context, dns *gen.DNS) (*gen.Empty, 
 	ip := net.ParseIP(dns.Address)
 	if ip == nil {
 		return nil, errors.New("invalid IP address")
+	}
+
+	addresses, err := getDnsList()
+	if err != nil {
+		return nil, err
+	}
+
+	if !findInSlice(dns.Address, addresses) {
+		return nil, errors.New("DNS server doesn't exist")
 	}
 
 	content, err := os.ReadFile(consts.ResolvConfPath)
@@ -111,4 +118,36 @@ func (s Server) RemoveDnsServer(ctx context.Context, dns *gen.DNS) (*gen.Empty, 
 
 func (s Server) mustEmbedUnimplementedDnsServiceServer() {
 
+}
+
+func getDnsList() ([]string, error) {
+	content, err := os.ReadFile(consts.ResolvConfPath)
+	if err != nil {
+		return nil, err
+	}
+
+	lines := strings.Split(string(content), "\n")
+	var addresses []string
+
+	for _, line := range lines {
+		if strings.HasPrefix(line, "nameserver") {
+			parts := strings.Fields(line)
+			if len(parts) > 1 {
+				addresses = append(addresses, parts[1])
+			}
+		}
+	}
+
+	return addresses, nil
+}
+
+func findInSlice(str string, list []string) bool {
+
+	for _, v := range list {
+		if v == str {
+			return true
+		}
+	}
+
+	return false
 }
